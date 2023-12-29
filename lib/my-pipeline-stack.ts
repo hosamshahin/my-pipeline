@@ -25,9 +25,9 @@ export class MyPipelineStack extends cdk.Stack {
       env: { account: '690901106489', region: 'us-west-1' }
     })
 
-    const myAppUSE1StageDev = new MyPipelineAppStage(this, 'MyAppUSE1DEV', {
-      env: { account: '864571753663', region: 'us-east-1' }
-    })
+    // const myAppUSE1StageDev = new MyPipelineAppStage(this, 'MyAppUSE1DEV', {
+    //   env: { account: '864571753663', region: 'us-east-1' }
+    // })
 
     const myAppEUW1Wave = wave.addStage(myAppEUW1Stage);
     myAppEUW1Wave.addPre(new ManualApprovalStep('approval'));
@@ -35,8 +35,8 @@ export class MyPipelineStack extends cdk.Stack {
     const myAppUSW1Wave = wave.addStage(myAppUSW1Stage);
     myAppUSW1Wave.addPre(new ManualApprovalStep('approval'));
 
-    const myAppUSE1WaveDev = wave.addStage(myAppUSE1StageDev);
-    myAppUSE1WaveDev.addPre(new ManualApprovalStep('approval'));
+    // const myAppUSE1WaveDev = wave.addStage(myAppUSE1StageDev);
+    // myAppUSE1WaveDev.addPre(new ManualApprovalStep('approval'));
   }
 }
 
