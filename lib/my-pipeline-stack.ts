@@ -26,6 +26,7 @@ export class MyPipelineStack extends cdk.Stack {
 
     const myAppEUWave = wave.addStage(myAppEUStage);
     myAppEUWave.addPre(new ManualApprovalStep('approval'));
+
     const myAppUSWave =wave.addStage(myAppUSStage);
     myAppUSWave.addPre(new ManualApprovalStep('approval'));
   }
