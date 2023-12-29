@@ -2,6 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, ShellStep, ManualApprovalStep } from 'aws-cdk-lib/pipelines';
 import { MyPipelineAppStage } from './my-pipeline-app-stage';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export class MyPipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -10,10 +13,10 @@ export class MyPipelineStack extends cdk.Stack {
     const githubOrg = process.env.GITHUB_ORG || "hosamshahin";
     const githubRepo = process.env.GITHUB_REPO || "my-pipeline";
     const githubBranch = process.env.GITHUB_BRANCH || "main";
-    const cicdAccountId = cdk.SecretValue.ssmSecure('CICD_ACCOUNT_ID').toString()
-    const devAccountId = cdk.SecretValue.ssmSecure('DEV_ACCOUNT_ID').toString()
-    const stgAccountId = cdk.SecretValue.ssmSecure('STG_ACCOUNT_ID').toString()
-    // const prdAccountId = cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString()
+    const cicdAccountId = process.env.CICD_ACCOUNT_ID || "undefined";
+    const devAccountId = process.env.DEV_ACCOUNT_ID || "undefined";
+    const stgAccountId = process.env.STG_ACCOUNT_ID || "undefined";
+    // const prdAccountId = process.env.PRD_ACCOUNT_ID || "undefined";
     const euw1Region = process.env.EUW1_REGION || "eu-west-1";
     const use1Region = process.env.USE1_REGION || "us-east-1";
 
