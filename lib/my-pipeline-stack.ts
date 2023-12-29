@@ -20,14 +20,14 @@ export class MyPipelineStack extends cdk.Stack {
       env: { account: '690901106489', region: 'eu-west-1' }
     })
 
-    const myAppUSStage= new MyPipelineAppStage(this, 'MyAppUS', {
+    const myAppUSStage = new MyPipelineAppStage(this, 'MyAppUS', {
       env: { account: '690901106489', region: 'us-west-1' }
     })
 
     const myAppEUWave = wave.addStage(myAppEUStage);
     myAppEUWave.addPre(new ManualApprovalStep('approval'));
 
-    const myAppUSWave =wave.addStage(myAppUSStage);
+    const myAppUSWave = wave.addStage(myAppUSStage);
     myAppUSWave.addPre(new ManualApprovalStep('approval'));
   }
 }
