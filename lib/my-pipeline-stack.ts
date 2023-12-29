@@ -30,34 +30,17 @@ export class MyPipelineStack extends cdk.Stack {
       })
     });
 
-    const myAppCicdEUW1Stage = new MyPipelineAppStage(this, 'MyAppEU', {
-      env: { account: cicdAccountId, region: euw1Region }
-    })
-
-    const myAppCicdUSW1Stage = new MyPipelineAppStage(this, 'MyAppUS', {
-      env: { account: cicdAccountId, region: use1Region }
-    })
-
     const myAppDevUSE1Stage = new MyPipelineAppStage(this, 'MyAppUSE1DEV', {
       env: { account: devAccountId, region: use1Region }
     })
 
-    const myAppStgUSE1Stage = new MyPipelineAppStage(this, 'MyAppStgUSE1Stage', {
-      env: { account: stgAccountId, region: euw1Region }
-    })
-
     const myAppPrdUSW1Stage = new MyPipelineAppStage(this, 'myAppPrdUSW1Stage', {
-      env: { account: prdAccountId, region: usw1Region }
+      env: { account: prdAccountId, region: use1Region }
     })
 
     const wave = pipeline.addWave('wave');
 
-    wave.addStage(myAppCicdEUW1Stage);
-    wave.addStage(myAppCicdUSW1Stage);
     wave.addStage(myAppDevUSE1Stage);
-
-    const myAppStgUSE1Wave = wave.addStage(myAppStgUSE1Stage);
-    myAppStgUSE1Wave.addPre(new ManualApprovalStep('approval'));
 
     const myAppPrdUSW1Wave = wave.addStage(myAppPrdUSW1Stage);
     myAppPrdUSW1Wave.addPre(new ManualApprovalStep('approval'));
