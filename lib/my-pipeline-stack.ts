@@ -16,9 +16,10 @@ export class MyPipelineStack extends cdk.Stack {
     const cicdAccountId = process.env.CICD_ACCOUNT_ID || cdk.SecretValue.ssmSecure('CICD_ACCOUNT_ID').toString();
     const devAccountId = process.env.DEV_ACCOUNT_ID || cdk.SecretValue.ssmSecure('DEV_ACCOUNT_ID').toString();
     const stgAccountId = process.env.STG_ACCOUNT_ID || cdk.SecretValue.ssmSecure('STG_ACCOUNT_ID').toString();
-    // const prdAccountId = process.env.PRD_ACCOUNT_ID || cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString();
+    const prdAccountId = process.env.PRD_ACCOUNT_ID || cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString();
     const euw1Region = process.env.EUW1_REGION || "eu-west-1";
     const use1Region = process.env.USE1_REGION || "us-east-1";
+    const usw1Region = process.env.USE1_REGION || "us-west-1";
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       crossAccountKeys: true,
@@ -45,19 +46,21 @@ export class MyPipelineStack extends cdk.Stack {
       env: { account: stgAccountId, region: euw1Region }
     })
 
+    const myAppPrdUSW1Stage = new MyPipelineAppStage(this, 'myAppPrdUSW1Stage', {
+      env: { account: prdAccountId, region: usw1Region }
+    })
+
     const wave = pipeline.addWave('wave');
 
-    const myAppEUW1Wave = wave.addStage(myAppCicdEUW1Stage);
-    myAppEUW1Wave.addPre(new ManualApprovalStep('approval'));
-
-    const myAppUSW1Wave = wave.addStage(myAppCicdUSW1Stage);
-    myAppUSW1Wave.addPre(new ManualApprovalStep('approval'));
-
-    const myAppUSE1WaveDev = wave.addStage(myAppDevUSE1Stage);
-    myAppUSE1WaveDev.addPre(new ManualApprovalStep('approval'));
+    wave.addStage(myAppCicdEUW1Stage);
+    wave.addStage(myAppCicdUSW1Stage);
+    wave.addStage(myAppDevUSE1Stage);
 
     const myAppStgUSE1Wave = wave.addStage(myAppStgUSE1Stage);
     myAppStgUSE1Wave.addPre(new ManualApprovalStep('approval'));
+
+    const myAppPrdUSW1Wave = wave.addStage(myAppPrdUSW1Stage);
+    myAppPrdUSW1Wave.addPre(new ManualApprovalStep('approval'));
   }
 }
 
