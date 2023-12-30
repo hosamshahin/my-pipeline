@@ -31,11 +31,11 @@ export class MyPipelineStack extends cdk.Stack {
       codeBuildDefaults: {
         buildEnvironment: {
           environmentVariables: {
-            CICD_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('CICD_ACCOUNT_ID').toString() },
-            DEV_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('DEV_ACCOUNT_ID').toString() },
-            STG_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('STG_ACCOUNT_ID').toString() },
-            PRD_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString() },
-            PRD_ACCOUNT_ID1: { value: cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString() },
+            CICD_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('CICD_ACCOUNT_ID').unsafeUnwrap().toString() },
+            DEV_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('DEV_ACCOUNT_ID').unsafeUnwrap().toString() },
+            STG_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('STG_ACCOUNT_ID').unsafeUnwrap().toString() },
+            PRD_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').unsafeUnwrap().toString() },
+            PRD_ACCOUNT_ID1: { value: cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').unsafeUnwrap().toString() },
           }
         }
       }
