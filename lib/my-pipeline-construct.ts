@@ -11,7 +11,7 @@ enum EnvIdName {
 }
 
 export interface MyPipelineProps {
-  // readonly deploymentEnv: string;
+  readonly deploymentEnv: string;
   readonly account: string;
   readonly region: string;
   readonly githubOrg: string;
@@ -26,7 +26,7 @@ export class MyPipeline extends Construct {
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       crossAccountKeys: true,
-      // pipelineName: `Pipeline-${props.deploymentEnv}`,
+      pipelineName: `Pipeline-${props.deploymentEnv}`,
       synth: new ShellStep('Synth', {
         input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
         commands: ['npm ci', 'npm run build', 'npx cdk synth'],

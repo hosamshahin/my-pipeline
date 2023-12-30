@@ -18,6 +18,7 @@ const pipelineStack = new cdk.Stack(app, 'Pipeline', {
 
 
 new MyPipeline(pipelineStack, 'Dev', {
+  deploymentEnv: 'dev',
   account: cdk.SecretValue.secretsManager('DEV_ACCOUNT_ID').unsafeUnwrap().toString(),
   region,
   githubOrg,
@@ -27,6 +28,7 @@ new MyPipeline(pipelineStack, 'Dev', {
 });
 
 new MyPipeline(pipelineStack, 'Prd', {
+  deploymentEnv: 'prd',
   account: cdk.SecretValue.secretsManager('PRD_ACCOUNT_ID').unsafeUnwrap().toString(),
   region,
   githubOrg,
