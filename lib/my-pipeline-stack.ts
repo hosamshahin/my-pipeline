@@ -26,8 +26,19 @@ export class MyPipelineStack extends cdk.Stack {
       pipelineName: 'MyPipeline',
       synth: new ShellStep('Synth', {
         input: CodePipelineSource.gitHub(`${githubOrg}/${githubRepo}`, githubBranch),
-        commands: ['npm ci', 'npm run build', 'npx cdk synth']
-      })
+        commands: ['npm ci', 'npm run build', 'npx cdk synth'],
+      }),
+      codeBuildDefaults: {
+        buildEnvironment: {
+          environmentVariables: {
+            CICD_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('CICD_ACCOUNT_ID').toString() },
+            DEV_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('DEV_ACCOUNT_ID').toString() },
+            STG_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('STG_ACCOUNT_ID').toString() },
+            PRD_ACCOUNT_ID: { value: cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString() },
+            PRD_ACCOUNT_ID1: { value: cdk.SecretValue.ssmSecure('PRD_ACCOUNT_ID').toString() },
+          }
+        }
+      }
     });
 
     const myAppDevUSE1Stage = new MyPipelineAppStage(this, 'MyAppUSE1DEV', {
