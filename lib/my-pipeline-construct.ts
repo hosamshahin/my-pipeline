@@ -24,10 +24,11 @@ export class MyPipeline extends Construct {
   constructor(scope: Construct, id: string, props: MyPipelineProps) {
     super(scope, id);
 
-    const accountId = process['env'][props.deploymentAcct] || cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString();
+    const accountSecret = cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString()
+    const accountId = process['env'][props.deploymentAcct] || accountSecret;
 
     let environmentVariables: any = {}
-    environmentVariables[props.deploymentAcct] = { value: cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString() }
+    environmentVariables[props.deploymentAcct] = { value: accountSecret }
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       crossAccountKeys: true,
