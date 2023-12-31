@@ -24,7 +24,11 @@ export class MyPipeline extends Construct {
   constructor(scope: Construct, id: string, props: MyPipelineProps) {
     super(scope, id);
 
-    const accountId = cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString()
+    const accountSecret = cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString()
+    const accountId = process['env'][props.deploymentAcct] || accountSecret;
+
+    let environmentVariables: any = {}
+    environmentVariables[props.deploymentAcct] = { value: accountSecret }
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       crossAccountKeys: true,
@@ -33,6 +37,11 @@ export class MyPipeline extends Construct {
         input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
         commands: ['npm ci', 'npm run build', 'npx cdk synth'],
       }),
+      codeBuildDefaults: {
+        buildEnvironment: {
+          environmentVariables
+        }
+      }
     });
 
     const myApp = new MyPipelineAppStage(this, 'MyApp', {
