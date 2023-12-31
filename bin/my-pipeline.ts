@@ -9,24 +9,16 @@ const region = 'us-east-1'
 
 const app = new cdk.App();
 
-const pipelineDev = new cdk.Stack(app, 'PipelineDev', {
+const pipeline = new cdk.Stack(app, 'Pipeline', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION
   }
 });
 
-const pipelinePrd = new cdk.Stack(app, 'PipelinePrd', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION
-  }
-});
-
-new MyPipeline(pipelineDev, 'Dev', {
+new MyPipeline(pipeline, 'Dev', {
   deploymentEnv: 'dev',
   deploymentAcct: 'DEV_ACCOUNT_ID',
-  account: cdk.SecretValue.secretsManager('DEV_ACCOUNT_ID').unsafeUnwrap().toString(),
   region,
   githubOrg,
   githubRepo,
@@ -34,10 +26,9 @@ new MyPipeline(pipelineDev, 'Dev', {
   preApprovalRequired: false
 });
 
-new MyPipeline(pipelinePrd, 'Prd', {
+new MyPipeline(pipeline, 'Prd', {
   deploymentEnv: 'prd',
   deploymentAcct: 'PRD_ACCOUNT_ID',
-  account: cdk.SecretValue.secretsManager('PRD_ACCOUNT_ID').unsafeUnwrap().toString(),
   region,
   githubOrg,
   githubRepo,

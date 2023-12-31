@@ -13,7 +13,6 @@ enum EnvIdName {
 export interface MyPipelineProps {
   readonly deploymentEnv: string;
   readonly deploymentAcct: string;
-  readonly account: string;
   readonly region: string;
   readonly githubOrg: string;
   readonly githubRepo: string;
