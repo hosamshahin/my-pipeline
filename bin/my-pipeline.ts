@@ -29,15 +29,15 @@ new MyPipeline(pipelineStack, 'Dev', {
   preApprovalRequired: false
 });
 
-new MyPipeline(pipelineStack, 'Prd', {
-  deploymentEnv: 'prd',
-  deploymentAcct: 'PRD_ACCOUNT_ID',
-  account: cdk.SecretValue.secretsManager('PRD_ACCOUNT_ID').unsafeUnwrap().toString(),
-  region,
-  githubOrg,
-  githubRepo,
-  githubBranch,
-  preApprovalRequired: true
-});
+// new MyPipeline(pipelineStack, 'Prd', {
+//   deploymentEnv: 'prd',
+//   deploymentAcct: 'PRD_ACCOUNT_ID',
+//   account: cdk.SecretValue.secretsManager('PRD_ACCOUNT_ID').unsafeUnwrap().toString(),
+//   region,
+//   githubOrg,
+//   githubRepo,
+//   githubBranch,
+//   preApprovalRequired: true
+// });
 
 app.synth();
