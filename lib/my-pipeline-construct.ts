@@ -32,7 +32,7 @@ export class MyPipeline extends Construct {
       synth: new ShellStep('Synth', {
         input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
         commands: ['npm ci', 'npm run build', 'npx cdk synth'],
-      }
+      }),
     });
 
     const myApp = new MyPipelineAppStage(this, 'MyApp', {
