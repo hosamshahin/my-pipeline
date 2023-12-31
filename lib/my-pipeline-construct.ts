@@ -12,6 +12,7 @@ enum EnvIdName {
 
 export interface MyPipelineProps {
   readonly deploymentEnv: string;
+  readonly deploymentAcct: string;
   readonly account: string;
   readonly region: string;
   readonly githubOrg: string;
@@ -24,6 +25,11 @@ export class MyPipeline extends Construct {
   constructor(scope: Construct, id: string, props: MyPipelineProps) {
     super(scope, id);
 
+    const accountId = process['env'][props.deploymentAcct] || cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString();
+
+    let environmentVariables: any = {}
+    environmentVariables[props.deploymentAcct] = { value: cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString() }
+
     const pipeline = new CodePipeline(this, 'Pipeline', {
       crossAccountKeys: true,
       pipelineName: `Pipeline-${props.deploymentEnv}`,
@@ -33,19 +39,13 @@ export class MyPipeline extends Construct {
       }),
       codeBuildDefaults: {
         buildEnvironment: {
-          environmentVariables: {
-            CICD_ACCOUNT_ID: { value: cdk.SecretValue.secretsManager('CICD_ACCOUNT_ID').unsafeUnwrap().toString() },
-            DEV_ACCOUNT_ID: { value: cdk.SecretValue.secretsManager('DEV_ACCOUNT_ID').unsafeUnwrap().toString() },
-            STG_ACCOUNT_ID: { value: cdk.SecretValue.secretsManager('STG_ACCOUNT_ID').unsafeUnwrap().toString() },
-            PRD_ACCOUNT_ID: { value: cdk.SecretValue.secretsManager('PRD_ACCOUNT_ID').unsafeUnwrap().toString() },
-            PRD_ACCOUNT_ID1: { value: cdk.SecretValue.secretsManager('PRD_ACCOUNT_ID').unsafeUnwrap().toString() },
-          }
+          environmentVariables
         }
       }
     });
 
     const myApp = new MyPipelineAppStage(this, 'MyApp', {
-      env: { account: props.account, region: props.region }
+      env: { account: accountId, region: props.region }
     })
 
     const myStage = pipeline.addStage(myApp);
