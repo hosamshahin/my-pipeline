@@ -70,7 +70,7 @@ export class Pipeline extends Construct {
     let stage: cdk.Stage
 
     if (props.pipelineGenerator) {
-      stage = new PipelineGeneratorStage(this, 'PipelineGeneratorStage', {
+      stage = new PipelineGeneratorStage(this, 'PipelineGenerator', {
         env: { account: accountId, region: props.region }
       })
     } else {

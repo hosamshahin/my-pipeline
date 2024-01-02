@@ -43,7 +43,6 @@ export class GithubWebhookAPIStack extends cdk.Stack {
 
     // Create a lambda function that can act as a handler for API Gateway requests
     const githubHandler = new lambda.Function(this, 'githubWebhookApiHandler', {
-      functionName: 'github-handler',
       code: lambda.Code.fromAsset('lib/lambdas/github_webhook_api'),
       handler: 'github_webhook.handler',
       runtime: lambda.Runtime.PYTHON_3_9,
@@ -59,7 +58,7 @@ export class GithubWebhookAPIStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, `${id}-github-webhook-api-handler-lambda-arn`, {
       value: githubHandler.functionArn,
-      exportName: `${id}-github-webhook-api-handler-lambda-arn`,
+      exportName: `${id}-github-webhook-api-handler-lambda-arn1`,
     });
 
     const logGroup = new logs.LogGroup(this, 'Github-Webhook-API-Logs');

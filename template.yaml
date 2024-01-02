@@ -1,0 +1,1270 @@
+Resources:
+  PrdPipelineArtifactsBucketEncryptionKey7D91F799:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Statement:
+          - Action: kms:*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+            Resource: "*"
+        Version: "2012-10-17"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/ArtifactsBucketEncryptionKey/Resource
+  PrdPipelineArtifactsBucketEncryptionKeyAliasB0C5017A:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/codepipeline-pipeline-prd-pipeline-b7e48895
+      TargetKeyId:
+        Fn::GetAtt:
+          - PrdPipelineArtifactsBucketEncryptionKey7D91F799
+          - Arn
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/ArtifactsBucketEncryptionKeyAlias/Resource
+  PrdPipelineArtifactsBucket033EC1A8:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID:
+                Fn::GetAtt:
+                  - PrdPipelineArtifactsBucketEncryptionKey7D91F799
+                  - Arn
+              SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/ArtifactsBucket/Resource
+  PrdPipelineArtifactsBucketPolicy8ACF12D9:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: PrdPipelineArtifactsBucket033EC1A8
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - PrdPipelineArtifactsBucket033EC1A8
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PrdPipelineArtifactsBucket033EC1A8
+                        - Arn
+                    - /*
+          - Action:
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+            Resource:
+              - Fn::GetAtt:
+                  - PrdPipelineArtifactsBucket033EC1A8
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PrdPipelineArtifactsBucket033EC1A8
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource
+  PrdPipelineRole114A0691:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Role/Resource
+  PrdPipelineRoleDefaultPolicyB252DA4D:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PrdPipelineArtifactsBucket033EC1A8
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PrdPipelineArtifactsBucket033EC1A8
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PrdPipelineArtifactsBucketEncryptionKey7D91F799
+                - Arn
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PrdPipelineAppStageapprovalCodePipelineActionRoleFAF25F74
+                  - Arn
+              - Fn::GetAtt:
+                  - PrdPipelineCodeBuildActionRole61908B66
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+        Version: "2012-10-17"
+      PolicyName: PrdPipelineRoleDefaultPolicyB252DA4D
+      Roles:
+        - Ref: PrdPipelineRole114A0691
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Role/DefaultPolicy/Resource
+  PrdPipelineA006601E:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        EncryptionKey:
+          Id:
+            Fn::GetAtt:
+              - PrdPipelineArtifactsBucketEncryptionKey7D91F799
+              - Arn
+          Type: KMS
+        Location:
+          Ref: PrdPipelineArtifactsBucket033EC1A8
+        Type: S3
+      Name: Pipeline-prd
+      RestartExecutionOnUpdate: true
+      RoleArn:
+        Fn::GetAtt:
+          - PrdPipelineRole114A0691
+          - Arn
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: "1"
+              Configuration:
+                Owner: hosamshahin
+                Repo: my-pipeline
+                Branch: main
+                OAuthToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+                PollForSourceChanges: false
+              Name: hosamshahin_my-pipeline
+              OutputArtifacts:
+                - Name: hosamshahin_my_pipeline_Source
+              RunOrder: 1
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: PrdPipelineBuildSynthCdkBuildProjectF3DBAD9E
+              InputArtifacts:
+                - Name: hosamshahin_my_pipeline_Source
+              Name: Synth
+              OutputArtifacts:
+                - Name: Synth_Output
+              RoleArn:
+                Fn::GetAtt:
+                  - PrdPipelineCodeBuildActionRole61908B66
+                  - Arn
+              RunOrder: 1
+          Name: Build
+        - Actions:
+            - ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: "1"
+              Name: approval
+              RoleArn:
+                Fn::GetAtt:
+                  - PrdPipelineAppStageapprovalCodePipelineActionRoleFAF25F74
+                  - Arn
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                StackName: AppStage-AppStack
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":iam::"
+                      - Ref: AWS::AccountId
+                      - :role/cdk-hnb659fds-cfn-exec-role-
+                      - Ref: AWS::AccountId
+                      - -us-east-1
+                ActionMode: CHANGE_SET_REPLACE
+                ChangeSetName: PipelineChange
+                TemplatePath: Synth_Output::assembly-Pipeline-Prd-AppStage/PipelinePrdAppStageAppStack3E7DA3CD.template.json
+              InputArtifacts:
+                - Name: Synth_Output
+              Name: AppStack.Prepare
+              RoleArn:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+              RunOrder: 2
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                StackName: AppStage-AppStack
+                ActionMode: CHANGE_SET_EXECUTE
+                ChangeSetName: PipelineChange
+              Name: AppStack.Deploy
+              RoleArn:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+              RunOrder: 3
+          Name: AppStage
+    DependsOn:
+      - PrdPipelineRoleDefaultPolicyB252DA4D
+      - PrdPipelineRole114A0691
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Resource
+  PrdPipelineSourcehosamshahinmypipelineWebhookResource720B126D:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: refs/heads/{Branch}
+      RegisterWithThirdParty: true
+      TargetAction: hosamshahin_my-pipeline
+      TargetPipeline:
+        Ref: PrdPipelineA006601E
+      TargetPipelineVersion: 1
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Source/hosamshahin_my-pipeline/WebhookResource
+  PrdPipelineBuildSynthCdkBuildProjectRole8B991102:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource
+  PrdPipelineBuildSynthCdkBuildProjectRoleDefaultPolicy4C66E161:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:logs:us-east-1:"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: PrdPipelineBuildSynthCdkBuildProjectF3DBAD9E
+                    - :*
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:logs:us-east-1:"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: PrdPipelineBuildSynthCdkBuildProjectF3DBAD9E
+          - Action:
+              - codebuild:BatchPutCodeCoverages
+              - codebuild:BatchPutTestCases
+              - codebuild:CreateReport
+              - codebuild:CreateReportGroup
+              - codebuild:UpdateReport
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:codebuild:us-east-1:"
+                  - Ref: AWS::AccountId
+                  - :report-group/
+                  - Ref: PrdPipelineBuildSynthCdkBuildProjectF3DBAD9E
+                  - -*
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - PrdPipelineArtifactsBucket033EC1A8
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - PrdPipelineArtifactsBucket033EC1A8
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PrdPipelineArtifactsBucketEncryptionKey7D91F799
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PrdPipelineBuildSynthCdkBuildProjectRoleDefaultPolicy4C66E161
+      Roles:
+        - Ref: PrdPipelineBuildSynthCdkBuildProjectRole8B991102
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource
+  PrdPipelineBuildSynthCdkBuildProjectF3DBAD9E:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Description: Pipeline step Pipeline/Pipeline/Build/Synth
+      EncryptionKey:
+        Fn::GetAtt:
+          - PrdPipelineArtifactsBucketEncryptionKey7D91F799
+          - Arn
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: PRD_ACCOUNT_ID
+            Type: PLAINTEXT
+            Value: "{{resolve:secretsmanager:PRD_ACCOUNT_ID:SecretString:::}}"
+        Image: aws/codebuild/standard:7.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - PrdPipelineBuildSynthCdkBuildProjectRole8B991102
+          - Arn
+      Source:
+        BuildSpec: |-
+          {
+            "version": "0.2",
+            "phases": {
+              "build": {
+                "commands": [
+                  "npm ci",
+                  "npm run build",
+                  "npx cdk synth"
+                ]
+              }
+            },
+            "artifacts": {
+              "base-directory": "cdk.out",
+              "files": "**/*"
+            }
+          }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource
+  PrdPipelineAppStageapprovalCodePipelineActionRoleFAF25F74:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/Pipeline/AppStage/approval/CodePipelineActionRole/Resource
+  PrdPipelineCodeBuildActionRole61908B66:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - PrdPipelineRole114A0691
+                  - Arn
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/CodeBuildActionRole/Resource
+  PrdPipelineCodeBuildActionRoleDefaultPolicyDEF16B8D:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - PrdPipelineBuildSynthCdkBuildProjectF3DBAD9E
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PrdPipelineCodeBuildActionRoleDefaultPolicyDEF16B8D
+      Roles:
+        - Ref: PrdPipelineCodeBuildActionRole61908B66
+    Metadata:
+      aws:cdk:path: Pipeline/Prd/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource
+  devPipelineArtifactsBucketEncryptionKey2804A253:
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Statement:
+          - Action: kms:*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+            Resource: "*"
+        Version: "2012-10-17"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/ArtifactsBucketEncryptionKey/Resource
+  devPipelineArtifactsBucketEncryptionKeyAliasB049D81C:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/codepipeline-pipeline-dev-pipeline-bc63bd14
+      TargetKeyId:
+        Fn::GetAtt:
+          - devPipelineArtifactsBucketEncryptionKey2804A253
+          - Arn
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/ArtifactsBucketEncryptionKeyAlias/Resource
+  devPipelineArtifactsBucket46225353:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID:
+                Fn::GetAtt:
+                  - devPipelineArtifactsBucketEncryptionKey2804A253
+                  - Arn
+              SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/ArtifactsBucket/Resource
+  devPipelineArtifactsBucketPolicy662AE747:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: devPipelineArtifactsBucket46225353
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineArtifactsBucket46225353
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - devPipelineArtifactsBucket46225353
+                        - Arn
+                    - /*
+          - Action:
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineArtifactsBucket46225353
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - devPipelineArtifactsBucket46225353
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/ArtifactsBucket/Policy/Resource
+  devPipelineRoleEDCC39AA:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Role/Resource
+  devPipelineRoleDefaultPolicyEE70B6CC:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineArtifactsBucket46225353
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - devPipelineArtifactsBucket46225353
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - devPipelineArtifactsBucketEncryptionKey2804A253
+                - Arn
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineCodeBuildActionRoleAEFF55E7
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+        Version: "2012-10-17"
+      PolicyName: devPipelineRoleDefaultPolicyEE70B6CC
+      Roles:
+        - Ref: devPipelineRoleEDCC39AA
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Role/DefaultPolicy/Resource
+  devPipeline8867D435:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        EncryptionKey:
+          Id:
+            Fn::GetAtt:
+              - devPipelineArtifactsBucketEncryptionKey2804A253
+              - Arn
+          Type: KMS
+        Location:
+          Ref: devPipelineArtifactsBucket46225353
+        Type: S3
+      Name: Pipeline-dev
+      RestartExecutionOnUpdate: true
+      RoleArn:
+        Fn::GetAtt:
+          - devPipelineRoleEDCC39AA
+          - Arn
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: "1"
+              Configuration:
+                Owner: hosamshahin
+                Repo: my-pipeline
+                Branch: main
+                OAuthToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+                PollForSourceChanges: false
+              Name: hosamshahin_my-pipeline
+              OutputArtifacts:
+                - Name: hosamshahin_my_pipeline_Source
+              RunOrder: 1
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: devPipelineBuildSynthCdkBuildProject6AC21DA4
+              InputArtifacts:
+                - Name: hosamshahin_my_pipeline_Source
+              Name: Synth
+              OutputArtifacts:
+                - Name: Synth_Output
+              RoleArn:
+                Fn::GetAtt:
+                  - devPipelineCodeBuildActionRoleAEFF55E7
+                  - Arn
+              RunOrder: 1
+          Name: Build
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName:
+                  Ref: devPipelineAssetsFileAsset1DB9D77AC
+              InputArtifacts:
+                - Name: Synth_Output
+              Name: FileAsset1
+              RoleArn:
+                Fn::GetAtt:
+                  - devPipelineCodeBuildActionRoleAEFF55E7
+                  - Arn
+              RunOrder: 1
+          Name: Assets
+        - Actions:
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                StackName: PipelineGeneratorStage-FeaturePipelineStack
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":iam::"
+                      - Ref: AWS::AccountId
+                      - :role/cdk-hnb659fds-cfn-exec-role-
+                      - Ref: AWS::AccountId
+                      - -us-east-1
+                ActionMode: CHANGE_SET_REPLACE
+                ChangeSetName: PipelineChange
+                TemplatePath: Synth_Output::assembly-Pipeline-dev-PipelineGeneratorStage/PipelinedevPipelineGeneratorStageFeaturePipelineStack249AE230.template.json
+              InputArtifacts:
+                - Name: Synth_Output
+              Name: FeaturePipelineStack.Prepare
+              RoleArn:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                StackName: PipelineGeneratorStage-GithubWebhookAPIStack
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                RoleArn:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":iam::"
+                      - Ref: AWS::AccountId
+                      - :role/cdk-hnb659fds-cfn-exec-role-
+                      - Ref: AWS::AccountId
+                      - -us-east-1
+                ActionMode: CHANGE_SET_REPLACE
+                ChangeSetName: PipelineChange
+                TemplatePath: Synth_Output::assembly-Pipeline-dev-PipelineGeneratorStage/PipelinedevPipelineGeneratorStageGithubWebhookAPIStack6A7A7714.template.json
+              InputArtifacts:
+                - Name: Synth_Output
+              Name: GithubWebhookAPIStack.Prepare
+              RoleArn:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                StackName: PipelineGeneratorStage-FeaturePipelineStack
+                ActionMode: CHANGE_SET_EXECUTE
+                ChangeSetName: PipelineChange
+              Name: FeaturePipelineStack.Deploy
+              RoleArn:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+              RunOrder: 2
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                StackName: PipelineGeneratorStage-GithubWebhookAPIStack
+                ActionMode: CHANGE_SET_EXECUTE
+                ChangeSetName: PipelineChange
+              Name: GithubWebhookAPIStack.Deploy
+              RoleArn:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":iam::"
+                    - Ref: AWS::AccountId
+                    - :role/cdk-hnb659fds-deploy-role-
+                    - Ref: AWS::AccountId
+                    - -us-east-1
+              RunOrder: 2
+          Name: PipelineGeneratorStage
+    DependsOn:
+      - devPipelineRoleDefaultPolicyEE70B6CC
+      - devPipelineRoleEDCC39AA
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Resource
+  devPipelineSourcehosamshahinmypipelineWebhookResourceA6842377:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: "{{resolve:secretsmanager:github-token:SecretString:::}}"
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: refs/heads/{Branch}
+      RegisterWithThirdParty: true
+      TargetAction: hosamshahin_my-pipeline
+      TargetPipeline:
+        Ref: devPipeline8867D435
+      TargetPipelineVersion: 1
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Source/hosamshahin_my-pipeline/WebhookResource
+  devPipelineBuildSynthCdkBuildProjectRoleA2044A25:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/Resource
+  devPipelineBuildSynthCdkBuildProjectRoleDefaultPolicy9F9A5548:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:logs:us-east-1:"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: devPipelineBuildSynthCdkBuildProject6AC21DA4
+                    - :*
+              - Fn::Join:
+                  - ""
+                  - - "arn:aws:logs:us-east-1:"
+                    - Ref: AWS::AccountId
+                    - :log-group:/aws/codebuild/
+                    - Ref: devPipelineBuildSynthCdkBuildProject6AC21DA4
+          - Action:
+              - codebuild:BatchPutCodeCoverages
+              - codebuild:BatchPutTestCases
+              - codebuild:CreateReport
+              - codebuild:CreateReportGroup
+              - codebuild:UpdateReport
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:codebuild:us-east-1:"
+                  - Ref: AWS::AccountId
+                  - :report-group/
+                  - Ref: devPipelineBuildSynthCdkBuildProject6AC21DA4
+                  - -*
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineArtifactsBucket46225353
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - devPipelineArtifactsBucket46225353
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - devPipelineArtifactsBucketEncryptionKey2804A253
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: devPipelineBuildSynthCdkBuildProjectRoleDefaultPolicy9F9A5548
+      Roles:
+        - Ref: devPipelineBuildSynthCdkBuildProjectRoleA2044A25
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Role/DefaultPolicy/Resource
+  devPipelineBuildSynthCdkBuildProject6AC21DA4:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Description: Pipeline step Pipeline/Pipeline/Build/Synth
+      EncryptionKey:
+        Fn::GetAtt:
+          - devPipelineArtifactsBucketEncryptionKey2804A253
+          - Arn
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: DEV_ACCOUNT_ID
+            Type: PLAINTEXT
+            Value: "{{resolve:secretsmanager:DEV_ACCOUNT_ID:SecretString:::}}"
+          - Name: BRANCH
+            Type: PLAINTEXT
+            Value: not_exist_branch_to_avoid_running
+        Image: aws/codebuild/standard:7.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - devPipelineBuildSynthCdkBuildProjectRoleA2044A25
+          - Arn
+      Source:
+        BuildSpec: |-
+          {
+            "version": "0.2",
+            "phases": {
+              "build": {
+                "commands": [
+                  "npm ci",
+                  "npm run build",
+                  "echo branch: $BRANCH; npx cdk list -c branch_name=$BRANCH",
+                  "echo branch: $BRANCH; npx cdk synth -c branch_name=$BRANCH"
+                ]
+              }
+            },
+            "artifacts": {
+              "base-directory": "cdk.out",
+              "files": "**/*"
+            }
+          }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Pipeline/Build/Synth/CdkBuildProject/Resource
+  devPipelineCodeBuildActionRoleAEFF55E7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - devPipelineRoleEDCC39AA
+                  - Arn
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/CodeBuildActionRole/Resource
+  devPipelineCodeBuildActionRoleDefaultPolicyA08B1575:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineAssetsFileAsset1DB9D77AC
+                  - Arn
+              - Fn::GetAtt:
+                  - devPipelineBuildSynthCdkBuildProject6AC21DA4
+                  - Arn
+        Version: "2012-10-17"
+      PolicyName: devPipelineCodeBuildActionRoleDefaultPolicyA08B1575
+      Roles:
+        - Ref: devPipelineCodeBuildActionRoleAEFF55E7
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/CodeBuildActionRole/DefaultPolicy/Resource
+  devPipelineAssetsFileRole1D5193B5:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:iam::"
+                    - Ref: AWS::AccountId
+                    - :root
+              Service: codebuild.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Assets/FileRole/Resource
+  devPipelineAssetsFileRoleDefaultPolicy7DB4DF32:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:logs:us-east-1:"
+                  - Ref: AWS::AccountId
+                  - :log-group:/aws/codebuild/*
+          - Action:
+              - codebuild:BatchPutCodeCoverages
+              - codebuild:BatchPutTestCases
+              - codebuild:CreateReport
+              - codebuild:CreateReportGroup
+              - codebuild:UpdateReport
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:codebuild:us-east-1:"
+                  - Ref: AWS::AccountId
+                  - :report-group/*
+          - Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - codebuild:StopBuild
+            Effect: Allow
+            Resource: "*"
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1
+          - Action:
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - devPipelineArtifactsBucket46225353
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - devPipelineArtifactsBucket46225353
+                        - Arn
+                    - /*
+          - Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - devPipelineArtifactsBucketEncryptionKey2804A253
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: devPipelineAssetsFileRoleDefaultPolicy7DB4DF32
+      Roles:
+        - Ref: devPipelineAssetsFileRole1D5193B5
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Assets/FileRole/DefaultPolicy/Resource
+  devPipelineAssetsFileAsset1DB9D77AC:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Description: Pipeline step Pipeline/Pipeline/Assets/FileAsset1
+      EncryptionKey:
+        Fn::GetAtt:
+          - devPipelineArtifactsBucketEncryptionKey2804A253
+          - Arn
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: DEV_ACCOUNT_ID
+            Type: PLAINTEXT
+            Value: "{{resolve:secretsmanager:DEV_ACCOUNT_ID:SecretString:::}}"
+        Image: aws/codebuild/standard:7.0
+        ImagePullCredentialsType: CODEBUILD
+        PrivilegedMode: false
+        Type: LINUX_CONTAINER
+      ServiceRole:
+        Fn::GetAtt:
+          - devPipelineAssetsFileRole1D5193B5
+          - Arn
+      Source:
+        BuildSpec: |-
+          {
+            "version": "0.2",
+            "phases": {
+              "install": {
+                "commands": [
+                  "npm install -g cdk-assets@2"
+                ]
+              },
+              "build": {
+                "commands": [
+                  "cdk-assets --path \"assembly-Pipeline-dev-PipelineGeneratorStage/PipelinedevPipelineGeneratorStageGithubWebhookAPIStack6A7A7714.assets.json\" --verbose publish \"02f3a5f361466541c862e60564388559ed3d42f7ea5f2f2e547ec28a181b0815:current_account-us-east-1\""
+                ]
+              }
+            }
+          }
+        Type: CODEPIPELINE
+    Metadata:
+      aws:cdk:path: Pipeline/dev/Pipeline/Assets/FileAsset1/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/01QvQ6CMBB+Fvdyigy6qqMLwcHRQDnj0UIJBQ1p+u7SFsTp+7nvfnJ7iOMD7Db5R0e8FJGkAsytz7lgLbUoqUENF1ViOis2JR+GT85SB/OrXZ7NP79j8VJKWCZqDeaKozMdnCTl2glPLNMJmPPABfbOnFmAVEni42oHbRnlNZhMSb/I45pcMu7KYiBZriemnaqQ+zUztZZlqNXQ8TBq5pY1UzdUevuOjxAn048qTRR1Q9NTjZAF/ALIjwyMQAEAAA==
+    Metadata:
+      aws:cdk:path: Pipeline/CDKMetadata/Default
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

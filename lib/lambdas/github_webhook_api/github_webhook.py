@@ -106,7 +106,7 @@ def handler(event, context):
     print(body)
     msg = ""
     try:
-        secret = get_github_webhook_secret_from_secretsmanager("github_webhook_secret")
+        secret = get_github_webhook_secret_from_secretsmanager("github_webhook_secret1")
         ref = body.get("ref", "")
         ref_head = body.get("ref_head", "")
         ref_type = body.get("ref_type", "")

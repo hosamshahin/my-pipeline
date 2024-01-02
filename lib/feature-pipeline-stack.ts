@@ -15,7 +15,7 @@ export class FeaturePipelineStack extends cdk.Stack {
       githubOrg: config.githubOrg,
       githubRepo: config.githubRepo,
       githubBranch: 'not_exist_branch_to_avoid_running',
-      preApprovalRequired: true,
+      preApprovalRequired: false,
       pipelineGenerator: false,
       codeBuildCommands: [
         "echo $CODEBUILD_INITIATOR",
