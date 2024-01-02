@@ -45,8 +45,8 @@ export class Pipeline extends Construct {
     let defaultCommands: Array<string> = [
       'npm ci',
       'npm run build',
-      "echo branch: $BRANCH; cdk list -c branch_name=$BRANCH",
-      "echo branch: $BRANCH; cdk synth -c branch_name=$BRANCH"
+      "echo branch: $BRANCH; npx cdk list -c branch_name=$BRANCH",
+      "echo branch: $BRANCH; npx cdk synth -c branch_name=$BRANCH"
     ]
 
     const codeBuildSynth = new CodeBuildStep('Synth', {
