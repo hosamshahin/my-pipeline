@@ -44,12 +44,19 @@ export class Pipeline extends Construct {
     const codeBuildSynth = new CodeBuildStep('Synth', {
       input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
       commands: [
-        "npm install -g aws-cdk",
-        "echo branch: $BRANCH; cdk list -c branch_name=$BRANCH",
-        "echo branch: $BRANCH; cdk synth -c branch_name=$BRANCH",
+        "echo $CODEBUILD_INITIATOR",
+        "BRANCH=$(echo $CODEBUILD_INITIATOR | sed -E 's/.*\/(feature-.*)-.*/\x01/')",
+        "echo $feature_pipeline_suffix",
+        "echo $BRANCH",
+        'npm ci',
+        'npm run build',
+        "cdk list -c branch_name=$BRANCH",
+        "cdk synth -c branch_name=$BRANCH"
       ],
       env: { 'BRANCH': 'not_exist_branch_to_avoid_running' }
     })
+
+
 
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
