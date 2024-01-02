@@ -71,7 +71,7 @@ export class Pipeline extends Construct {
 
     if (props.pipelineGenerator) {
       stage = new PipelineGeneratorStage(this, 'PipelineGenerator', {
-        env: { account: accountId, region: props.region }
+        env: { account: cdk.Stack.of(this).account, region: props.region }
       })
     } else {
       stage = new AppStage(this, 'AppStage', {
