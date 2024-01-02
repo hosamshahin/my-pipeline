@@ -11,7 +11,7 @@ export class GithubWebhookAPIStack extends cdk.Stack {
     super(scope, id, props);
 
     const secret = new secretsmanager.Secret(this, 'githubWebhookSecret', {
-      secretName: 'github_webhook_secret',
+      secretName: 'github_webhook_secret1',
     });
 
     const handlerRole = new iam.Role(this, 'generator-lambda-role', {
