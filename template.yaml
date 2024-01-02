@@ -804,7 +804,7 @@ Resources:
                 Provider: CloudFormation
                 Version: "1"
               Configuration:
-                StackName: PipelineGeneratorStage-FeaturePipelineStack
+                StackName: PipelineGenerator-FeaturePipelineStack
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
                 RoleArn:
                   Fn::Join:
@@ -818,7 +818,7 @@ Resources:
                       - -us-east-1
                 ActionMode: CHANGE_SET_REPLACE
                 ChangeSetName: PipelineChange
-                TemplatePath: Synth_Output::assembly-Pipeline-dev-PipelineGeneratorStage/PipelinedevPipelineGeneratorStageFeaturePipelineStack249AE230.template.json
+                TemplatePath: Synth_Output::assembly-Pipeline-dev-PipelineGenerator/PipelinedevPipelineGeneratorFeaturePipelineStackA6CDAB82.template.json
               InputArtifacts:
                 - Name: Synth_Output
               Name: FeaturePipelineStack.Prepare
@@ -839,7 +839,7 @@ Resources:
                 Provider: CloudFormation
                 Version: "1"
               Configuration:
-                StackName: PipelineGeneratorStage-GithubWebhookAPIStack
+                StackName: PipelineGenerator-GithubWebhookAPIStack
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
                 RoleArn:
                   Fn::Join:
@@ -853,7 +853,7 @@ Resources:
                       - -us-east-1
                 ActionMode: CHANGE_SET_REPLACE
                 ChangeSetName: PipelineChange
-                TemplatePath: Synth_Output::assembly-Pipeline-dev-PipelineGeneratorStage/PipelinedevPipelineGeneratorStageGithubWebhookAPIStack6A7A7714.template.json
+                TemplatePath: Synth_Output::assembly-Pipeline-dev-PipelineGenerator/PipelinedevPipelineGeneratorGithubWebhookAPIStackF3F4C1CF.template.json
               InputArtifacts:
                 - Name: Synth_Output
               Name: GithubWebhookAPIStack.Prepare
@@ -874,7 +874,7 @@ Resources:
                 Provider: CloudFormation
                 Version: "1"
               Configuration:
-                StackName: PipelineGeneratorStage-FeaturePipelineStack
+                StackName: PipelineGenerator-FeaturePipelineStack
                 ActionMode: CHANGE_SET_EXECUTE
                 ChangeSetName: PipelineChange
               Name: FeaturePipelineStack.Deploy
@@ -895,7 +895,7 @@ Resources:
                 Provider: CloudFormation
                 Version: "1"
               Configuration:
-                StackName: PipelineGeneratorStage-GithubWebhookAPIStack
+                StackName: PipelineGenerator-GithubWebhookAPIStack
                 ActionMode: CHANGE_SET_EXECUTE
                 ChangeSetName: PipelineChange
               Name: GithubWebhookAPIStack.Deploy
@@ -910,7 +910,7 @@ Resources:
                     - Ref: AWS::AccountId
                     - -us-east-1
               RunOrder: 2
-          Name: PipelineGeneratorStage
+          Name: PipelineGenerator
     DependsOn:
       - devPipelineRoleDefaultPolicyEE70B6CC
       - devPipelineRoleEDCC39AA
@@ -1235,7 +1235,7 @@ Resources:
               },
               "build": {
                 "commands": [
-                  "cdk-assets --path \"assembly-Pipeline-dev-PipelineGeneratorStage/PipelinedevPipelineGeneratorStageGithubWebhookAPIStack6A7A7714.assets.json\" --verbose publish \"02f3a5f361466541c862e60564388559ed3d42f7ea5f2f2e547ec28a181b0815:current_account-us-east-1\""
+                  "cdk-assets --path \"assembly-Pipeline-dev-PipelineGenerator/PipelinedevPipelineGeneratorGithubWebhookAPIStackF3F4C1CF.assets.json\" --verbose publish \"d3bc212e6b9b712bd247e27d0ee49e3628122cc8fda9b0025e5140bf61e8eedb:current_account-us-east-1\""
                 ]
               }
             }

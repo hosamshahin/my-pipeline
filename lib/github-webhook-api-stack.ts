@@ -11,7 +11,7 @@ export class GithubWebhookAPIStack extends cdk.Stack {
     super(scope, id, props);
 
     const secret = new secretsmanager.Secret(this, 'githubWebhookSecret', {
-      secretName: 'github_webhook_secret1',
+      secretName: 'github_webhook_secret',
     });
 
     const handlerRole = new iam.Role(this, 'generator-lambda-role', {
@@ -58,7 +58,7 @@ export class GithubWebhookAPIStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, `${id}-github-webhook-api-handler-lambda-arn`, {
       value: githubHandler.functionArn,
-      exportName: `${id}-github-webhook-api-handler-lambda-arn1`,
+      exportName: `${id}-github-webhook-api-handler-lambda-arn`,
     });
 
     const logGroup = new logs.LogGroup(this, 'Github-Webhook-API-Logs');
