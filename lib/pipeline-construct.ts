@@ -45,7 +45,6 @@ export class Pipeline extends Construct {
       input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
       commands: [
         "npm install -g aws-cdk",
-        "python -m pip install -r requirements.txt",
         "echo branch: $BRANCH; cdk list -c branch_name=$BRANCH",
         "echo branch: $BRANCH; cdk synth -c branch_name=$BRANCH",
       ],
