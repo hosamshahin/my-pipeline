@@ -6,10 +6,9 @@ import hmac
 import hashlib
 import boto3
 
-
-branch_prefix = os.getenv("branch_prefix")
-feature_pipeline_suffix = os.getenv("feature_pipeline_suffix")
-pipeline_template = os.getenv("pipeline_template")
+branch_prefix = os.getenv("branchPrefix")
+feature_pipeline_suffix = os.getenv("featurePipelineSuffix")
+pipeline_template = os.getenv("pipelineTemplate")
 
 codepipeline_client = boto3.client("codepipeline")
 sm_client = boto3.client("secretsmanager")
