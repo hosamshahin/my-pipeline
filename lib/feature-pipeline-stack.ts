@@ -16,7 +16,19 @@ export class FeaturePipelineStack extends cdk.Stack {
       githubRepo: config.githubRepo,
       githubBranch: 'not_exist_branch_to_avoid_running',
       preApprovalRequired: true,
-      pipelineGenerator: false
+      pipelineGenerator: false,
+      codeBuildCommands: [
+        "echo $CODEBUILD_INITIATOR",
+        "BRANCH=$(echo $CODEBUILD_INITIATOR | sed -E 's/.*\/(feature-.*)-.*/\x01/')",
+        "echo $feature_pipeline_suffix",
+        "echo $BRANCH",
+        'npm ci',
+        'npm run build',
+        "cdk list -c branch_name=$BRANCH",
+        "cdk synth -c branch_name=$BRANCH",
+        "echo branch: $BRANCH; cdk list -c branch_name=$BRANCH",
+        "echo branch: $BRANCH; cdk synth -c branch_name=$BRANCH",
+      ]
     });
 
   }

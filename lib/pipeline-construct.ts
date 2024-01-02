@@ -20,6 +20,7 @@ export interface PipelineProps {
   readonly githubBranch: string;
   readonly preApprovalRequired: boolean | false;
   readonly pipelineGenerator: boolean | false;
+  readonly codeBuildCommands?: Array<string>;
 }
 
 export class Pipeline extends Construct {
@@ -41,23 +42,18 @@ export class Pipeline extends Construct {
       ],
     })
 
+    let defaultCommands: Array<string> = [
+      'npm ci',
+      'npm run build',
+      "echo branch: $BRANCH; cdk list -c branch_name=$BRANCH",
+      "echo branch: $BRANCH; cdk synth -c branch_name=$BRANCH"
+    ]
+
     const codeBuildSynth = new CodeBuildStep('Synth', {
       input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
-      commands: [
-        "echo $CODEBUILD_INITIATOR",
-        "BRANCH=$(echo $CODEBUILD_INITIATOR | sed -E 's/.*\/(feature-.*)-.*/\x01/')",
-        "echo $feature_pipeline_suffix",
-        "echo $BRANCH",
-        'npm ci',
-        'npm run build',
-        "cdk list -c branch_name=$BRANCH",
-        "cdk synth -c branch_name=$BRANCH"
-      ],
+      commands: props.codeBuildCommands ? props.codeBuildCommands : defaultCommands,
       env: { 'BRANCH': 'not_exist_branch_to_avoid_running' }
     })
-
-
-
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       crossAccountKeys: true,
