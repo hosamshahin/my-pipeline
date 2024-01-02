@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { MyPipeline } from '../lib/my-pipeline-construct';
-
-const githubOrg = 'hosamshahin';
-const githubRepo = 'my-pipeline';
-const githubBranch = 'main';
-const region = 'us-east-1'
+import { Pipeline } from '../lib/pipeline-construct';
+import { PipelineGeneratorStage } from '../lib/pipeline-generator-stage';
 
 const app = new cdk.App();
+
+const config = app.node.tryGetContext("config")
 
 const pipeline = new cdk.Stack(app, 'Pipeline', {
   env: {
@@ -16,24 +14,26 @@ const pipeline = new cdk.Stack(app, 'Pipeline', {
   }
 });
 
-new MyPipeline(pipeline, 'Dev', {
-  deploymentEnv: 'dev',
-  deploymentAcct: 'DEV_ACCOUNT_ID',
-  region,
-  githubOrg,
-  githubRepo,
-  githubBranch: 'dev',
-  preApprovalRequired: false
-});
-
-new MyPipeline(pipeline, 'Prd', {
+new Pipeline(pipeline, 'Prd', {
   deploymentEnv: 'prd',
   deploymentAcct: 'PRD_ACCOUNT_ID',
-  region,
-  githubOrg,
-  githubRepo,
-  githubBranch,
-  preApprovalRequired: true
+  region: config.region,
+  githubOrg: config.githubOrg,
+  githubRepo: config.githubRepo,
+  githubBranch: config.githubBranch,
+  preApprovalRequired: true,
+  pipelineGenerator: false
+});
+
+new Pipeline(pipeline, 'dev', {
+  deploymentEnv: 'dev',
+  deploymentAcct: 'DEV_ACCOUNT_ID',
+  region: config.region,
+  githubOrg: config.githubOrg,
+  githubRepo: config.githubRepo,
+  githubBranch: config.githubBranch,
+  preApprovalRequired: false,
+  pipelineGenerator: true,
 });
 
 app.synth();
