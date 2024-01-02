@@ -9,8 +9,8 @@ export class FeaturePipelineStack extends cdk.Stack {
     const config = this.node.tryGetContext("config")
 
     new Pipeline(this, 'feature', {
-      deploymentEnv: 'dev',
-      deploymentAcct: 'DEV_ACCOUNT_ID',
+      deploymentEnv: 'cicd',
+      deploymentAcct: 'CICD_ACCOUNT_ID',
       region: config.region,
       githubOrg: config.githubOrg,
       githubRepo: config.githubRepo,
