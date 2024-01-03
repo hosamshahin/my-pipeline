@@ -1060,8 +1060,8 @@ Resources:
                 "commands": [
                   "npm ci",
                   "npm run build",
-                  "echo branch: $BRANCH; npx cdk list -c branch_name=$BRANCH",
-                  "echo branch: $BRANCH; npx cdk synth -c branch_name=$BRANCH"
+                  "echo branch: $BRANCH; npx cdk list -c branch_name=$BRANCH -c TargetStack=Pipeline",
+                  "echo branch: $BRANCH; npx cdk synth -c branch_name=$BRANCH -c TargetStack=Pipeline"
                 ]
               }
             },
