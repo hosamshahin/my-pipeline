@@ -91,6 +91,54 @@ def delete_feature_pipeline(pipeline_name):
     response = codepipeline_client.delete_pipeline(name=pipeline_name)
 
 
+def delete_stack(branch_name, pipeline_template):
+    role_arn=''
+    stack_name=''
+
+    codepipeline_client = boto3.client("codepipeline")
+    response = codepipeline_client.get_pipeline(
+        name=pipeline_template,
+    )
+
+    pipeline_describe = response.get("pipeline", {})
+    stages = pipeline_describe["stages"]
+
+    for i in range(len(stages)):
+        stage = stages[i]
+        actions = stage['actions']
+        for j in range(len(actions)):
+            action = actions[j]
+            configuration = action['configuration']
+            if 'StackName' in configuration.keys():
+                stack_name = configuration['StackName']
+            if 'RoleArn' in configuration.keys():
+                role_arn = configuration['RoleArn']
+
+    stack_name = f"{branch_name}-{stack_name}"
+
+    logger.info('stack_name:{}, role_arn:{}'.format(stack_name, role_arn))
+    response = codepipeline_client.create_pipeline(pipeline=pipeline_describe)
+
+    sts_client = boto3.client('sts')
+    response = sts_client.assume_role(
+        RoleArn=role_arn,
+        RoleSessionName='CleanupChildStacks'
+    )
+    session = boto3.Session(
+        aws_access_key_id=response['Credentials']['AccessKeyId'],
+        aws_secret_access_key=response['Credentials']['SecretAccessKey'],
+        aws_session_token=response['Credentials']['SessionToken']
+    )
+    cf_client = session.client('cloudformation')
+    StackName = stack_name
+    response = cf_client.delete_stack(
+        StackName=StackName
+    )
+    waiter = cf_client.get_waiter('stack_delete_complete')
+    waiter.wait(StackName=StackName)
+    logger.info('successfully deleted CloudFormation stack:{}'.format(StackName))
+
+
 def handler(event, context):
     raw_body_data = json.loads(event.get("body", {}))
     print(raw_body_data)
@@ -101,7 +149,7 @@ def handler(event, context):
     print(body)
     msg = ""
     try:
-        secret = get_github_webhook_secret_from_secretsmanager("github_webhook_secret")
+        # secret = get_github_webhook_secret_from_secretsmanager("github_webhook_secret")
         ref = body.get("ref", "")
         ref_head = body.get("ref_head", "")
         ref_type = body.get("ref_type", "")
@@ -142,6 +190,7 @@ def handler(event, context):
                         f"Dropping pipeline {pipeline_name} for branch: {branch_name}"
                     )
                     delete_feature_pipeline(pipeline_name)
+                    delete_stack(branch_name, pipeline_template)
 
                     msg = f"Done feature pipeline deletion for: {branch_name}"
                 else:

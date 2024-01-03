@@ -26,8 +26,8 @@ new Pipeline(pipeline, 'Prd', {
 });
 
 
-new Pipeline(pipeline, 'dev', {
-  deploymentEnv: 'dev',
+new Pipeline(pipeline, 'PGen', {
+  deploymentEnv: 'PGen',
   deploymentAcct: 'DEV_ACCOUNT_ID',
   region: config.region,
   githubOrg: config.githubOrg,
