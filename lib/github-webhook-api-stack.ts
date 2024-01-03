@@ -10,16 +10,16 @@ export class GithubWebhookAPIStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // const secret = new secretsmanager.Secret(this, 'githubWebhookSecret', {
-    //   secretName: 'github_webhook_secret',
-    // });
+    const config = this.node.tryGetContext("config")
+    const accounts = config['accounts']
+    const region = config['region']
 
     const handlerRole = new iam.Role(this, 'generator-lambda-role', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       roleName: `${id}-lambda-role`,
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
-      ],
+      ]
     });
 
     handlerRole.addToPolicy(
@@ -38,6 +38,16 @@ export class GithubWebhookAPIStack extends cdk.Stack {
           'codestar-connections:PassConnection',
         ],
         resources: ['*'],
+      }),
+    );
+
+    handlerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['sts:AssumeRole'],
+        resources: [
+          `arn:aws:iam::${accounts['DEV_ACCOUNT_ID']}:role/cdk-hnb659fds-cfn-exec-role-${accounts['DEV_ACCOUNT_ID']}-${region}`,
+          `arn:aws:iam::${accounts['PRD_ACCOUNT_ID']}:role/cdk-hnb659fds-cfn-exec-role-${accounts['PRD_ACCOUNT_ID']}-${region}`
+        ],
       }),
     );
 
