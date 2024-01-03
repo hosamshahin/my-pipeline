@@ -27,11 +27,8 @@ export class Pipeline extends Construct {
   constructor(scope: Construct, id: string, props: PipelineProps) {
     super(scope, id);
 
-    const accountSecret = cdk.SecretValue.secretsManager(props.deploymentAcct).unsafeUnwrap().toString()
-    const accountId = process['env'][props.deploymentAcct] || accountSecret;
-
-    let environmentVariables: any = {}
-    environmentVariables[props.deploymentAcct] = { value: accountSecret }
+    const config = this.node.tryGetContext("config")
+    const accounts = config['accounts']
 
     const defultSynth: ShellStep = new ShellStep('Synth', {
       input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
@@ -59,12 +56,7 @@ export class Pipeline extends Construct {
       crossAccountKeys: true,
       selfMutation: false,
       pipelineName: `Pipeline-${props.deploymentEnv}`,
-      synth: props.pipelineGenerator ? codeBuildSynth : defultSynth,
-      codeBuildDefaults: {
-        buildEnvironment: {
-          environmentVariables
-        }
-      }
+      synth: props.pipelineGenerator ? codeBuildSynth : defultSynth
     });
 
     let stage: cdk.Stage
@@ -75,7 +67,7 @@ export class Pipeline extends Construct {
       })
     } else {
       stage = new AppStage(this, 'AppStage', {
-        env: { account: accountId, region: props.region }
+        env: { account: accounts[props.deploymentAcct], region: props.region }
       })
     }
 
