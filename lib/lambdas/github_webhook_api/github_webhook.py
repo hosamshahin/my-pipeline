@@ -27,8 +27,6 @@ def get_github_webhook_secret_from_secretsmanager(github_webhook_secret):
 
 
 def branch_name_check(branch_name, branch_prefix):
-    #return True
-    # implement if needed
     if re.match(branch_prefix, branch_name):
         return True
     else:
@@ -42,11 +40,6 @@ def verify_webhook(secret, data, hmac_header):
     ).hexdigest()
     return hexdigest == received_hmac
 
-#def dict_haskey(d, k):
-#    if k in d.keys():
-#        return True
-#    else:
-#        return False
 
 def save_branch_name_in_ssm(branch_name):
     branch_chars = re.sub("[^0-9a-zA-Z-]+", "", str(branch_name))
@@ -71,11 +64,24 @@ def create_feature_pipeline_from_template(
     )
 
     pipeline_describe = response.get("pipeline", {})
-
     pipeline_describe["name"] = pipeline_name
-    pipeline_describe["stages"][0]["actions"][0]["configuration"][
-        "BranchName"
-    ] = branch_name
+    pipeline_describe["stages"][0]["actions"][0]["configuration"]["BranchName"] = branch_name
+
+    print(json.dumps(pipeline_describe))
+    stages = pipeline_describe["stages"]
+
+    for i in range(len(stages)):
+        stage = stages[i]
+        actions = stage['actions']
+        for j in range(len(actions)):
+            action = actions[j]
+            configuration = action['configuration']
+            if 'StackName' in configuration.keys():
+                stack_name = configuration['StackName']
+                stages[i]['actions'][j]['configuration']['StackName'] = f"{branch_name}-{stack_name}"
+
+    pipeline_describe["stages"] = stages
+    print(json.dumps(pipeline_describe))
 
     response = codepipeline_client.create_pipeline(pipeline=pipeline_describe)
 
@@ -86,19 +92,9 @@ def delete_feature_pipeline(pipeline_name):
 
 
 def handler(event, context):
-    '''
-    {
-        "repository": "${{github.event.repository.full_name}}",
-        "ref": "${{github.ref_name}}",
-        "ref_head": "${{github.head_ref}}",
-        "ref_type": "branch",
-        "description": "${{ github.event.head_commit.message }}"
-    }
-    '''
-    #raw_body_data = event.get("body", {})
     raw_body_data = json.loads(event.get("body", {}))
     print(raw_body_data)
-    #logger.info(raw_body_data)
+    logger.info(raw_body_data)
     body = raw_body_data.get("data")
     event = raw_body_data.get("event")
     print("event")
@@ -109,7 +105,6 @@ def handler(event, context):
         ref = body.get("ref", "")
         ref_head = body.get("ref_head", "")
         ref_type = body.get("ref_type", "")
-        #description = dict_haskey(body, "description") # commit message
         description = body.get("description", "")
         logger.info(f"ref: {ref}, ref_type: {ref_type}, description: {description}")
 

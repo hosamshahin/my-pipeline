@@ -48,7 +48,7 @@ export class GithubWebhookAPIStack extends cdk.Stack {
       runtime: lambda.Runtime.PYTHON_3_9,
       role: handlerRole,
       environment: {
-        pipelineTemplate: 'pipeline-cicd',
+        pipelineTemplate: 'Pipeline-cicd',
         branchPrefix: '^(feature|bug|hotfix)-',
         featurePipelineSuffix: '-FeatureBranchPipeline',
       },

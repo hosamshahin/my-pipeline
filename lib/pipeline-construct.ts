@@ -29,9 +29,15 @@ export class Pipeline extends Construct {
 
     const config = this.node.tryGetContext("config")
     const accounts = config['accounts']
+    const connectionArn = config['connection_arn']
+    const input: cdk.pipelines.IFileSetProducer = CodePipelineSource.connection(
+      `${props.githubOrg}/${props.githubRepo}`,
+      props.githubBranch,
+      { connectionArn }
+    )
 
     const defultSynth: ShellStep = new ShellStep('Synth', {
-      input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
+      input,
       commands: [
         'npm ci',
         'npm run build',
@@ -47,7 +53,7 @@ export class Pipeline extends Construct {
     ]
 
     const codeBuildSynth = new CodeBuildStep('Synth', {
-      input: CodePipelineSource.gitHub(`${props.githubOrg}/${props.githubRepo}`, props.githubBranch),
+      input,
       commands: props.codeBuildCommands ? props.codeBuildCommands : defaultCommands,
       env: { 'BRANCH': 'not_exist_branch_to_avoid_running' }
     })
